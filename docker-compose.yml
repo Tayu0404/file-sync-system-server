@@ -1,0 +1,36 @@
+version: '3.5'
+services:
+  api:
+    build: ./api
+    expose:
+      - '8082'
+    environment:
+      ALIAS: '/'
+      PORT: '8082'
+      CLIENT_ID: $CLIENT_ID
+      CLIENT_SECRET: $CLIENT_SECRET
+      REDIRECT_URL: $REDIRECT_URL
+      LOGIN_URL: $LOGIN_URL
+      JWT_SECRET: $JWT_SECRET
+      BOT_TOKEN: $BOT_TOKEN
+    depends_on:
+      - db
+    restart: always
+    networks:
+      - backend
+  db:
+    build: ./db
+    expose:
+        - '3306'
+    volumes:
+        - db:/var/lib/mysql
+    environment:
+        MYSQL_ROOT_PASSWORD: 'password'
+    restart: always
+    networks:
+      - backend
+volumes:
+  db:
+
+networks:
+  backend:
