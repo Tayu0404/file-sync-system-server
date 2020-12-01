@@ -27,6 +27,8 @@ CREATE TABLE IF NOT EXISTS `fss_db`.`user_profiles` (
 CREATE TABLE IF NOT EXISTS `fss_db`.`file_types` (
     `filetype_id`      INT UNSIGNED            NOT NULL,
     `name`             VARCHAR                 NOT NULL,
+
+    PRIMARY KEY ( `filetype_id` )
 );
 
 CREATE TABLE IF NOT EXISTS `fss_db`.`files` (
@@ -75,6 +77,5 @@ BULK INSERT `fss_db`.`Shared`
 FROM '/docker-entrypoint-initdb.d/filetype.csv'
 WITH (
     FIRSTROW = 2,
-    FIELDTERMINATOR = ',',
-    KEEPNULLS 
+    FIELDTERMINATOR = ',', 
 );
