@@ -5,21 +5,26 @@ CREATE DATABASE IF NOT EXISTS `fss_db`;
 
 CREATE TABLE IF NOT EXISTS `fss_db`.`users` (
     `user_id`          BIGINT UNSIGNED         NOT NULL,
+    `email`            VARCHAR(128)            NOT NULL,
     `password`         VARCHAR(60)             NOT NULL,
+    `two_fa_type`      SMALLINT UNSIGNED       NOT NULL,
+    `totp_secret`      VARCHAR(32),
     `locale`           VARCHAR(16),
-    `role`             BOOLEAN                 NOT NULL DEFAULT 0,
+    `role`             SMALLINT UNSIGNED       NOT NULL DEFAULT 0,
     `created_at`       TIMESTAMP               NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `last_login`       TIMESTAMP               NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `deleted_at`       TIMESTAMP,
  
-    PRIMARY KEY ( `user_id` )
+    PRIMARY KEY ( `user_id`, `email` )
 );
 
 CREATE TABLE IF NOT EXISTS `fss_db`.`user_profiles` (
     `user_id`          BIGINT UNSIGNED         NOT NULL,
     `name`             VARCHAR(32)             NOT NULL,
     `avatar`           VARCHAR(34)             NOT NULL,
-    `email`            VARCHAR(128)            NOT NULL,
+    `created_at`       TIMESTAMP               NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`       TIMESTAMP               NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `deleted_at`       TIMESTAMP,
 
     PRIMARY KEY ( `user_id` )
 );
@@ -72,4 +77,4 @@ LOAD DATA INFILE "/docker-entrypoint-initdb.d/filetype.csv"
     INTO TABLE `fss_db`.`file_types`
     FIELDS TERMINATED BY ','
     LINES TERMINATED BY '\n'
-    IGNORE 1 LINES;
+    IGNORE 1 LINES;/

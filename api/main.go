@@ -2,21 +2,30 @@ package main
 
 import (
 	"os"
-	"fmt"
+	"strconv"
+	"time"
 
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/bwmarrin/snowflake"
 	"github.com/jmoiron/sqlx"
-
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	cache "github.com/patrickmn/go-cache"
+
+	"github.com/Tayu0404/file-sync-system-server/api/handler"
+	"github.com/Tayu0404/file-sync-system-server/api/model"
 )
 
 func main() {
 	db := sqlx.MustConnect("mysql", "fss:password@tcp(db:3306)/fss_db?parseTime=true")
 	defer db.Close()
 
+	snowflakeNode, _ := strconv.ParseInt(os.Getenv("SnowflakeNode"), 10, 64)
+
 	m := model.NewModel(db)
-	h := handler.NewHandler(m)
+	n, _ := snowflake.NewNode(snowflakeNode)
+	c := cache.New(5*time.Minute, 30*time.Second)
+	h := handler.NewHandler(m, n, c)
 
 	e := echo.New()
 
@@ -24,8 +33,8 @@ func main() {
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 
-	e.GET("/signup", h.Signup)
-	e.GET("/login", h.Login)
+	e.POST("/signup", h.Signup)
+	e.POST("/login", h.Login)
 
 	g := e.Group("/user")
 	config := middleware.JWTConfig{
@@ -33,6 +42,8 @@ func main() {
 		SigningKey: []byte(os.Getenv("JWT_SECRET")),
 	}
 	g.Use(middleware.JWTWithConfig(config))
+	
+	/*
 	g.GET("/detail", h.Detail)
 	g.GET("/sync", h.GetSync)
 	g.PUT("/changepass", h.PutChangePass)
@@ -47,8 +58,8 @@ func main() {
 	g.DELETE("/file/delete/:id", h.DeleteFile)
 
 	g.POST("/folder", h.PostCreateFolder)
-	g.PUT("/folder", h.PutRenameFolder)
-	g.DELETE("/folder", h.DeleteFolder)
-
+	g.PUT("/folder/:id", h.PutRenameFolder)
+	g.DELETE("/folder/:id", h.DeleteFolder)
+	*/
 	e.Logger.Fatal(e.Start(":8057"))
 }

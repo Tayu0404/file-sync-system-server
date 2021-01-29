@@ -4,9 +4,12 @@ RUN go get -u github.com/labstack/echo \
               github.com/dgrijalva/jwt-go \
               github.com/go-sql-driver/mysql
 RUN go get golang.org/x/crypto/bcrypt \
-           github.com/jmoiron/sqlx 
+           github.com/jmoiron/sqlx \
+           github.com/bwmarrin/snowflake \
+           github.com/patrickmn/go-cache \
+           github.com/pquerna/otp/totp
 
-WORKDIR /go/src/github.com/Tayu0404/file-sync-system/api
+WORKDIR /go/src/github.com/Tayu0404/file-sync-system-server/api/
 COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o app .
@@ -25,7 +28,7 @@ RUN apk --no-cache add --virtual=wget wget \
     && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
 	&& apk del wget
 
-COPY --from=builder /go/src/github.com/Tayu0404/file-sync-system/api/app .
+COPY --from=builder /go/src/github.com/Tayu0404/file-sync-system-server/api/app .
 
 ENTRYPOINT ["dockerize", "-wait", "tcp://db:3306"]
 CMD ["./app"]
